@@ -7,9 +7,7 @@ import me.fliedermeyer.actors.OBBAsteroid;
 
 public class MyWorld extends World {
 
-	// Constructor for objects of class MyWorld.
-
-	public MyWorld() {
+	public MyWorld() { // Constructor for objects of class MyWorld
 		super(1000, 800, 1);
 
 		AABBRocket rocket = new AABBRocket();

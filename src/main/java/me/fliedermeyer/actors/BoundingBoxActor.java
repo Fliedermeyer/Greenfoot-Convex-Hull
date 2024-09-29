@@ -2,7 +2,12 @@ package me.fliedermeyer.actors;
 
 import greenfoot.Actor;
 
+// Abstract base class for all types of bounding boxes
+// Each subclass must implement its own version of collision detection
+
 public abstract class BoundingBoxActor extends Actor {
 
-    public abstract boolean checkCollision(BoundingBoxActor other);
+    // 
+    // Abstract method for collision detection to be implemented by
+    public abstract boolean checkCollision(BoundingBoxActor other); 
 }

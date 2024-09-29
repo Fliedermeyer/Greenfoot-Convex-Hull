@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.leotuet</groupId>
+    <groupId>me.fliedermeyer</groupId>
     <artifactId>greenfoot-maven-starter</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -46,7 +46,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>me.leotuet.Main</mainClass>
+                    <mainClass>me.fliedermeyer.Main</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,4 +1,4 @@
-package me.leotuet;
+package me.fliedermeyer;
 
 import polyfill.GreenfootScenarioApplication;
 

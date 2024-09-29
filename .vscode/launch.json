@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "me.fliedermeyer.Main",
+      "projectName": "greenfoot-maven-starter"
+    },
+    {
+      "type": "java",
       "name": "Attach Debugger",
       "request": "attach",
       "hostName": "localhost",

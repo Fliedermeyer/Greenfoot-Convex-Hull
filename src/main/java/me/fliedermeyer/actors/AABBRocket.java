@@ -13,7 +13,7 @@ public class AABBRocket extends AABBActor {
     }
 
     public void act() {
-        if (isTouching(AABBAsteroid.class)) {
+        if (checkCollision(new AABBAsteroid())) {
             Greenfoot.stop();
         }
         move();

@@ -3,6 +3,7 @@ package me.fliedermeyer.worlds;
 import greenfoot.World;
 import me.fliedermeyer.actors.AABBAsteroid;
 import me.fliedermeyer.actors.AABBRocket;
+import me.fliedermeyer.actors.OBBAsteroid;
 
 public class MyWorld extends World {
 
@@ -16,5 +17,8 @@ public class MyWorld extends World {
 
 		AABBAsteroid a1 = new AABBAsteroid();
 		addObject(a1, getWidth() / 2, 0);
+
+		OBBAsteroid a2 = new OBBAsteroid();
+		addObject(a2, getWidth() / 2 + 150, 0);
 	}
 }

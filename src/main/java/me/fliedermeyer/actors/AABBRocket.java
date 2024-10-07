@@ -16,12 +16,12 @@ public class AABBRocket extends AABBActor {
 
     public void act() {
         if (checkCollision(new AABBAsteroid())) {
-            Greenfoot.stop(); // game stops when collision is detected
+            Greenfoot.stop(); // Game stops when collision is detected
         }
         move();
     }
 
-    public void move() { // moving the rocket with the keys W,A,S,D
+    public void move() { // Moving the rocket with the keys W,A,S,D
         if (Greenfoot.isKeyDown("W")) {
             setLocation(getX(), getY() - 5);
         }

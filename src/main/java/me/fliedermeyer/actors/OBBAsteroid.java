@@ -15,11 +15,11 @@ public class OBBAsteroid extends OBBActor {
     }
 
     public void act() {
-        setLocation(getX(), getY() + 5); // moving downwards
-        setRotation(45); // rotated by 45 degrees
+        setLocation(getX(), getY() + 5); // Moving downwards
+        setRotation(45); // Rotated by 45 degrees
 
         if (checkCollision(new AABBRocket())) {
-            Greenfoot.stop(); // game stops when collision is detected
+            Greenfoot.stop(); // Game stops when collision is detected
         }
     }
 }

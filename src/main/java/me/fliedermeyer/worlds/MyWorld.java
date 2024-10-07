@@ -3,12 +3,15 @@ package me.fliedermeyer.worlds;
 import greenfoot.World;
 import me.fliedermeyer.actors.AABBAsteroid;
 import me.fliedermeyer.actors.AABBRocket;
+import me.fliedermeyer.actors.CHAsteroid;
 import me.fliedermeyer.actors.OBBAsteroid;
 
+// Class for the game world
 public class MyWorld extends World {
 
-	public MyWorld() { // Constructor for objects of class MyWorld
-		super(1000, 800, 1);
+	// Constructor for objects of MyWorld class
+	public MyWorld() {
+		super(1000, 800, 1); // Sets the boundaries of the world
 
 		AABBRocket rocket = new AABBRocket();
 		addObject(rocket, getWidth() / 2, 800 - 45);
@@ -18,5 +21,9 @@ public class MyWorld extends World {
 
 		OBBAsteroid a2 = new OBBAsteroid();
 		addObject(a2, getWidth() / 2 + 150, 0);
+
+		CHAsteroid a3 = new CHAsteroid();
+		addObject(a3, getWidth() / 2 - 150, 0);
+
 	}
 }

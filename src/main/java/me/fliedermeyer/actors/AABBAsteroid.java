@@ -15,10 +15,10 @@ public class AABBAsteroid extends AABBActor {
     }
 
     public void act() {
-        setLocation(getX(), getY() + 5); // moving downwards
+        setLocation(getX(), getY() + 5); // Moving downwards
 
         if (checkCollision(new AABBRocket())) {
-            Greenfoot.stop(); // game stops when collision is detected
+            Greenfoot.stop(); // Game stops when collision is detected
         }
     }
 

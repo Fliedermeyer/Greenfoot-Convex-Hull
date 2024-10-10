@@ -2,6 +2,7 @@ package me.fliedermeyer.actors;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public abstract class CHActor extends BBActor {
 
@@ -11,11 +12,12 @@ public abstract class CHActor extends BBActor {
     protected abstract Point[] getPoints();
 
     // Calculate the complete convex hull triplet by triplet
-    protected void calculateConvexHull(Point[] points, int numOfPts) { // ToDo: Void to be changed later
+    protected void calculateConvexHull(Point[] points) { // ToDo: Void to be changed later
 
-        points = getPoints(); // Get the array of points
+        points = getPoints();
+        points = removeDuplicates(points);
 
-        numOfPts = points.length; // Number of points in the array
+        int numOfPts = points.length; // Number of points in the array
 
         // Convex Hull isn't constructable if there are less than 3 points, because in
         // that case it's only a point or a line -> Exit the calculation
@@ -23,16 +25,23 @@ public abstract class CHActor extends BBActor {
             return;
         }
 
-        ArrayList<Point> convexHull = new ArrayList<Point>(); // Save all points of the convex hull
+        ArrayList<Point> convexHull = new ArrayList<Point>();
 
         int minY = 0; // Save the lowest point (y-coordinate)
 
         // Find the lowest point (y-coordinate)
-        // ToDo: What if 2 points match criteria?
         for (int i = 1; i < numOfPts; i++) {
             if (points[i].y < points[minY].y) {
                 minY = i;
             }
+
+            // If 2 points have the same minimum y-value, take the point with the larger
+            // x-value
+            else if (points[i].y == points[minY].y && points[i].x < points[minY].x) {
+                minY = i;
+            }
+
+            // ToDo: Calculating only the essential points of the CH
         }
 
         int current = minY; // Initializes the first / current point to be the lowest point
@@ -67,10 +76,13 @@ public abstract class CHActor extends BBActor {
         }
     }
 
-    // Calculation of the orientation of the current triplet of points, whether
-    // they're oriented collinear, clockwise or counterclockwise to each other
+    /*
+     * Calculation of the orientation of the current triplet of points, whether
+     * they're oriented collinear, clockwise or counterclockwise to each other.
+     * Calculate the slopes of lines formed by a,b and b,c using the cross product.
+     */
     private int orientation(Point a, Point b, Point c) {
-        int slope1 = (b.y - a.y) * (c.x - b.x); // ToDo: Using dotproduct to avoid dividing by 0 -> explanation later
+        int slope1 = (b.y - a.y) * (c.x - b.x);
         int slope2 = (c.y - b.y) * (b.x - a.x);
 
         if (slope1 == slope2) {
@@ -82,8 +94,27 @@ public abstract class CHActor extends BBActor {
         }
     }
 
+    // Remove duplicate points by converting the array into a LinkedHashSet, which
+    // cannot have duplicates
+    protected Point[] removeDuplicates(Point[] points) {
+
+        LinkedHashSet<Point> uniquePoints = new LinkedHashSet<Point>();
+
+        for (int i = 0; i < points.length; i++) {
+            uniquePoints.add(points[i]);
+        }
+
+        return uniquePoints.toArray(new Point[0]);
+    }
+
     @Override
     public boolean checkCollision(BBActor otherActor) {
-        return isTouching(otherActor.getClass()); // ToDo: Wrong collision detection; only temporary
+
+        if (otherActor.isCH()) {
+            return isTouching(otherActor.getClass()); // ToDo: Collision detection using SAT()
+        } else if (otherActor.isAABB() || otherActor.isOBB()) {
+            return false; // ToDo: Later to avoid collision problem between isTouching() & SAT()
+        }
+        return false;
     }
 }

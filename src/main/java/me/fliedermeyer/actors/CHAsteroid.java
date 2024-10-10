@@ -12,7 +12,7 @@ public class CHAsteroid extends CHActor {
         image = new GreenfootImage("Triangle.png"); // Set the image of the object
         setImage(image);
 
-        calculateConvexHull(getPoints(), getPoints().length);
+        calculateConvexHull(getPoints());
     }
 
     public void act() {
@@ -36,6 +36,9 @@ public class CHAsteroid extends CHActor {
                 new Point(1, 2),
                 new Point(3, 1),
                 new Point(3, 3),
+                new Point(1, 0),
+                new Point(2, 0),
+                new Point(2, 0),
         };
     }
 

@@ -10,7 +10,7 @@ public class OBBActor extends BBActor {
         if (otherActor.isAABB() || otherActor.isOBB()) {
             return isTouching(otherActor.getClass()); // Collision detection using Greenfoots isTouching() method
         } else if (otherActor.isCH()) {
-            return false; // ToDo: Later to avoid collision problems between isTouching() & SAT()
+            return false; // TODO: Later to avoid collision problems between isTouching() & SAT()
         }
         return false;
     }

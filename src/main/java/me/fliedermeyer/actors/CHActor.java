@@ -1,8 +1,10 @@
 package me.fliedermeyer.actors;
 
 import java.awt.Point;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.Stack;
 
 public abstract class CHActor extends BBActor {
 
@@ -11,8 +13,8 @@ public abstract class CHActor extends BBActor {
     // -> Every convex hull object must deliver points to calculate the convex hull
     protected abstract Point[] getPoints();
 
-    // Calculate the complete convex hull triplet by triplet
-    protected void calculateConvexHull(Point[] points) { // ToDo: Void to be changed later
+    // Calculate the complete convex hull by processing points triplet by triplet
+    protected Point[] calculateConvexHull(Point[] points) {
 
         points = getPoints();
         points = removeDuplicates(points);
@@ -20,16 +22,14 @@ public abstract class CHActor extends BBActor {
         int numOfPts = points.length; // Number of points in the array
 
         // Convex Hull isn't constructable if there are less than 3 points, because in
-        // that case it's only a point or a line -> Exit the calculation
+        // that case it's only a point or a line -> Return empty array
         if (numOfPts < 3) {
-            return;
+            return new Point[0];
         }
 
-        ArrayList<Point> convexHull = new ArrayList<Point>();
+        int minY = 0; // Index of the lowest point
 
-        int minY = 0; // Save the lowest point (y-coordinate)
-
-        // Find the lowest point (y-coordinate)
+        // Find the index of lowest point
         for (int i = 1; i < numOfPts; i++) {
             if (points[i].y < points[minY].y) {
                 minY = i;
@@ -37,68 +37,98 @@ public abstract class CHActor extends BBActor {
 
             // If 2 points have the same minimum y-value, take the point with the larger
             // x-value
-            else if (points[i].y == points[minY].y && points[i].x < points[minY].x) {
+            else if (points[i].y == points[minY].y && points[i].x > points[minY].x) {
                 minY = i;
             }
-
-            // ToDo: Calculating only the essential points of the CH
         }
 
-        int current = minY; // Initializes the first / current point to be the lowest point
-        int next;
+        Point minYPoint = points[minY];
+        final Point base = minYPoint;
 
-        // Start from the lowest point and move counterclockwise until reaching the
-        // start point again
-        do {
-            convexHull.add(points[current]); // Add the current point from the loop to the convex hull
+        // Sort points based on their orientation relative to the base point
+        Arrays.sort(points, new Comparator<Point>() {
+            @Override
+            public int compare(Point a, Point b) {
+                int orientation = getOrientation(base, a, b);
 
-            /*
-             * Search for the next point so that the orientation of the points looks like
-             * this [current -> potential -> next]; Watch the last visited most
-             * counterclockwise point "next"; If any point "potential" in between those 2
-             * points is more counterclockwise
-             * than "next", update "next" to the value of "potential";
-             */
-            next = (current + 1) % numOfPts;
+                // if points are collinear, sort them by distance from the base
+                if (orientation == 0) {
+                    int distanceA = getDistance(base, a);
+                    int distanceB = getDistance(base, b);
+                    return Integer.compare(distanceA, distanceB);
 
-            for (int potential = 0; potential < numOfPts; potential++) {
-                if (orientation(points[current], points[potential], points[next]) == 2) {
-                    next = potential;
+                } else if (orientation == 2) {
+                    return -1; // Counterclockwise -> a should come before b
+                } else {
+                    return 1; // Clockwise or collinear -> b should come before a
                 }
             }
+        });
 
-            current = next;
+        Stack<Point> convexHull = new Stack<>();
+        // Push the first 2 points onto the convexHull stack
+        convexHull.push(points[0]);
+        convexHull.push(points[1]);
 
-        } while (current != minY); // Run this loop while not reaching the start point again
+        // Build the convex hull
+        for (int i = 2; i < numOfPts; i++) {
+            Point front = points[i]; // Current point beeing processed
+            Point middle = convexHull.pop(); // Point at the top of the stack
+            Point back = convexHull.peek(); // Point below the middle point
 
-        for (int i = 0; i < convexHull.size(); i++) { // ToDo: Convex hull needs to be implemented
-            System.out.println("(" + convexHull.get(i).x + "|" + convexHull.get(i).y + ")");
+            switch (getOrientation(back, middle, front)) {
+                case 2: // Counterclockwise
+                    convexHull.push(middle); // Keep middle point in the hull
+                    convexHull.push(front); // Add the current front point to the hull
+                    break;
+                case 1: // Clockwise
+                    i--; // Process the current point again
+                    break;
+                case 0: // Collinear
+                    convexHull.push(front); // Add the current point to the hull
+                    break;
+            }
         }
+
+        convexHull.push(points[0]); // Close the hull by adding the starting point again
+
+        // Debugging
+        for (Point point : convexHull) {
+            System.out.println("CH: " + point.x + ", " + point.y);
+        }
+
+        return convexHull.toArray(new Point[0]);
     }
 
     /*
-     * Calculation of the orientation of the current triplet of points, whether
+     * Calculation of the orientation of the middle triplet of points, whether
      * they're oriented collinear, clockwise or counterclockwise to each other.
      * Calculate the slopes of lines formed by a,b and b,c using the cross product.
      */
-    private int orientation(Point a, Point b, Point c) {
+    private int getOrientation(Point a, Point b, Point c) {
+        // Calculate both slopes using cross product
         int slope1 = (b.y - a.y) * (c.x - b.x);
         int slope2 = (c.y - b.y) * (b.x - a.x);
 
-        if (slope1 == slope2) {
-            return 0; // Collinear
-        } else if (slope1 > slope2) {
+        if (slope1 > slope2) {
             return 1; // Clockwise
-        } else {
+        } else if (slope1 < slope2) {
             return 2; // Counterclockwise
+        } else {
+            return 0; // Collinear
         }
     }
 
-    // Remove duplicate points by converting the array into a LinkedHashSet, which
-    // cannot have duplicates
-    protected Point[] removeDuplicates(Point[] points) {
+    // Calculate the Manhattan / squared distance between 2 points
+    private int getDistance(Point a, Point b) {
+        return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+    }
 
-        LinkedHashSet<Point> uniquePoints = new LinkedHashSet<Point>();
+    // Remove duplicate points by converting the array into a LinkedHashSet, which
+    // can't have duplicates
+    private Point[] removeDuplicates(Point[] points) {
+
+        LinkedHashSet<Point> uniquePoints = new LinkedHashSet<>();
 
         for (int i = 0; i < points.length; i++) {
             uniquePoints.add(points[i]);
@@ -111,9 +141,9 @@ public abstract class CHActor extends BBActor {
     public boolean checkCollision(BBActor otherActor) {
 
         if (otherActor.isCH()) {
-            return isTouching(otherActor.getClass()); // ToDo: Collision detection using SAT()
+            return isTouching(otherActor.getClass()); // TODO: Collision detection using SAT()
         } else if (otherActor.isAABB() || otherActor.isOBB()) {
-            return false; // ToDo: Later to avoid collision problem between isTouching() & SAT()
+            return false; // TODO: Later to avoid collision problem between isTouching() & SAT()
         }
         return false;
     }

@@ -2,22 +2,23 @@ package me.fliedermeyer.actors;
 
 import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
+import java.awt.Point;
 
-// Rocket using an AABB
-
-public class AABBRocket extends AABBActor {
+public class CHRocket extends CHActor {
 
     private GreenfootImage image;
 
-    public AABBRocket() { // Constructor for image
-        image = new GreenfootImage("Triangle.png");
+    public CHRocket() { // Constructor for image
+        image = new GreenfootImage("Diamond.png");
         setImage(image);
     }
 
     public void act() {
-        if (checkCollision(new AABBAsteroid())) {
-            System.out.println("Game stopped at " + getX() + " | " + getY());
-            Greenfoot.stop(); // Game stops when collision is detected
+        for (CHAsteroid asteroid : getWorld().getObjects(CHAsteroid.class)) {
+            if (checkCollision(asteroid)) {
+                Greenfoot.stop();
+                System.out.println("Game stopped at " + getX() + " | " + getY());
+            }
         }
         move();
     }
@@ -35,5 +36,15 @@ public class AABBRocket extends AABBActor {
         if (Greenfoot.isKeyDown("D")) {
             setLocation(getX() + 5, getY());
         }
+    }
+
+    @Override
+    protected Point[] getPoints() {
+        return new Point[] {
+                new Point(0, 45),
+                new Point(90, 45),
+                new Point(45, 0),
+                new Point(45, 90)
+        };
     }
 }

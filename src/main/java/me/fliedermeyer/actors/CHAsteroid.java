@@ -11,15 +11,16 @@ public class CHAsteroid extends CHActor {
     public CHAsteroid() { // Constructor
         image = new GreenfootImage("Triangle.png"); // Set the image of the object
         setImage(image);
-
-        calculateConvexHull(getPoints());
     }
 
     public void act() {
         setLocation(getX(), getY() + 5);
 
-        if (checkCollision(new AABBRocket())) {
-            Greenfoot.stop();
+        for (AABBRocket rocket : getWorld().getObjects(AABBRocket.class)) {
+            if (checkCollision(rocket)) {
+                Greenfoot.stop();
+                System.out.println("Game stopped at " + getX() + " | " + getY());
+            }
         }
     }
 
@@ -28,17 +29,9 @@ public class CHAsteroid extends CHActor {
     @Override
     protected Point[] getPoints() {
         return new Point[] {
-                new Point(0, 3),
-                new Point(1, 1),
-                new Point(2, 2),
-                new Point(4, 4),
-                new Point(0, 0),
-                new Point(1, 2),
-                new Point(3, 1),
-                new Point(3, 3),
-                new Point(1, 0),
-                new Point(2, 0),
-                new Point(2, 0),
+                new Point(45, 0),
+                new Point(0, 90),
+                new Point(90, 90)
         };
     }
 

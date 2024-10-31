@@ -13,6 +13,22 @@ public abstract class CHActor extends BBActor {
     // -> Every convex hull object must deliver points to calculate the convex hull
     protected abstract Point[] getPoints();
 
+    private Point[] convexHull;
+
+    public CHActor() {
+        this.convexHull = calculateConvexHull(getPoints());
+
+        // Debugging
+        for (Point point : convexHull) {
+            // TODO: Indicate which ConvexHull is being calculated
+            System.out.println("CH: " + point.x + ", " + point.y);
+        }
+    }
+
+    protected Point[] getConvexHull() {
+        return convexHull;
+    }
+
     // Calculate the complete convex hull by processing points triplet by triplet
     protected Point[] calculateConvexHull(Point[] points) {
 
@@ -92,11 +108,6 @@ public abstract class CHActor extends BBActor {
 
         convexHull.push(points[0]); // Close the hull by adding the starting point again
 
-        // Debugging
-        for (Point point : convexHull) {
-            System.out.println("CH: " + point.x + ", " + point.y);
-        }
-
         return convexHull.toArray(new Point[0]);
     }
 
@@ -139,12 +150,80 @@ public abstract class CHActor extends BBActor {
 
     @Override
     public boolean checkCollision(BBActor otherActor) {
-
-        if (otherActor.isCH()) {
-            return isTouching(otherActor.getClass()); // TODO: Collision detection using SAT()
-        } else if (otherActor.isAABB() || otherActor.isOBB()) {
-            return false; // TODO: Later to avoid collision problem between isTouching() & SAT()
+        if (!(otherActor instanceof CHActor otherCHActor)) {
+            // TODO: Maybe throw Exception
+            System.out.println("Collision detection between different kinds of bounding boxes does not work");
+            return false;
         }
+
+        Point[] thisHull = getMovingConvexHull();
+        Point[] otherHull = otherCHActor.getMovingConvexHull();
+
+        // Check for a separating axis between this actor and the other one
+        // If a separating axis between both convex hulls can be drawn, then there is no
+        // collision
+        if (hasSeparatingAxis(thisHull, otherHull) || hasSeparatingAxis(otherHull, thisHull)) {
+            return false;
+        }
+
+        // No separating axis can be drawn -> objects must collide
+        return true;
+    }
+
+    private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
+        // Check each edge of hullA to draw potential separating axes
+        for (int i = 0; i < hullA.length; i++) {
+            Point p1 = hullA[i];
+            Point p2 = hullA[(i + 1) % hullA.length];
+
+            // Calculate the orthogonal / normal vector (axis) to the current edge as a
+            // potential separating axis
+            Point axis = new Point(-(p2.y - p1.y), p2.x - p1.x);
+
+            // Project both hulls onto the orthogonal vector (axis)
+            int[] projectionA = projectHullonAxis(hullA, axis);
+            int[] projectionB = projectHullonAxis(hullB, axis);
+
+            // Check if there is a gap between the projections on this axis
+            // If a gap is found, this is the separating axis -> no collision on this axis
+            if (projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0]) {
+                return true;
+            }
+        }
+        // No separating axes at all -> objects must collide
         return false;
+    }
+
+    private int[] projectHullonAxis(Point[] hull, Point axis) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        // Project each point of the hull onto the axis and find the min and max values
+        for (int i = 0; i < hull.length; i++) {
+            int projection = hull[i].x * axis.x + hull[i].y * axis.y;
+
+            if (projection < min) {
+                min = projection;
+            }
+            if (projection > max) {
+                max = projection;
+            }
+        }
+
+        // Return the projection range (min -> max) on this axis
+        return new int[] { min, max };
+    }
+
+    protected Point[] getMovingConvexHull() {
+        Point[] originalHull = getConvexHull();
+        Point[] movingHull = new Point[originalHull.length];
+
+        // Move each point of the original convex hull to the actor's current position
+        // in the world
+        for (int i = 0; i < originalHull.length; i++) {
+            movingHull[i] = new Point(originalHull[i].x + getX(), originalHull[i].y + getY());
+        }
+
+        return movingHull;
     }
 }

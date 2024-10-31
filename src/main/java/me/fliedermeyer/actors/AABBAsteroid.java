@@ -18,6 +18,7 @@ public class AABBAsteroid extends AABBActor {
         setLocation(getX(), getY() + 5); // Moving downwards
 
         if (checkCollision(new AABBRocket())) {
+            System.out.println("Game stopped at " + getX() + " | " + getY());
             Greenfoot.stop(); // Game stops when collision is detected
         }
     }

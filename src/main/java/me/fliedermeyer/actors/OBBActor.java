@@ -7,11 +7,11 @@ public class OBBActor extends BBActor {
     @Override
     public boolean checkCollision(BBActor otherActor) {
 
-        if (otherActor.isAABB() || otherActor.isOBB()) {
+        if (otherActor instanceof AABBActor || otherActor instanceof OBBActor) {
             return isTouching(otherActor.getClass()); // Collision detection using Greenfoots isTouching() method
-        } else if (otherActor.isCH()) {
-            return false; // TODO: Later to avoid collision problems between isTouching() & SAT()
         }
+        // TODO: Maybe throw Exception
+        System.out.println("Collision detection between different kinds of bounding boxes does not work");
         return false;
     }
 }

@@ -9,17 +9,4 @@ public abstract class BBActor extends Actor {
 
     // Abstract method for collision detection to be implemented
     public abstract boolean checkCollision(BBActor otherActor);
-
-    // Helper methods to dinstinguish types of bounding boxes
-    protected boolean isAABB() {
-        return this instanceof AABBActor;
-    }
-
-    protected boolean isOBB() {
-        return this instanceof OBBActor;
-    }
-
-    protected boolean isCH() {
-        return this instanceof CHActor;
-    }
 }

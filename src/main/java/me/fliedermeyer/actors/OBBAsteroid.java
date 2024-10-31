@@ -19,6 +19,7 @@ public class OBBAsteroid extends OBBActor {
         setRotation(45); // Rotated by 45 degrees
 
         if (checkCollision(new AABBRocket())) {
+            System.out.println("Game stopped at " + getX() + " | " + getY());
             Greenfoot.stop(); // Game stops when collision is detected
         }
     }

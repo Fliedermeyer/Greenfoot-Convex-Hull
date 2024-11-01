@@ -1,17 +1,16 @@
 package me.fliedermeyer.actors;
 
-// Every actor that inherits from this class uses AABB collision detection
+// Every actor that inherits from this class uses Axis Aligned Bounding Box (AABB) collision detection
 
 public class AABBActor extends BBActor {
 
     @Override
     public boolean checkCollision(BBActor otherActor) {
 
-        if (otherActor instanceof AABBActor || otherActor instanceof OBBActor) {
+        if (otherActor instanceof AABBActor || otherActor instanceof OBBActor || otherActor instanceof CHActor) {
             return isTouching(otherActor.getClass()); // Collision detection using Greenfoots isTouching() method
+        } else {
+            return false;
         }
-        // TODO: Maybe throw Exception
-        System.out.println("Collision detection between different kinds of bounding boxes does not work");
-        return false;
     }
 }

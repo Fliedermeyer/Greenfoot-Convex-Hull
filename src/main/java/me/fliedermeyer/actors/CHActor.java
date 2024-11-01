@@ -8,8 +8,8 @@ import java.util.Stack;
 
 public abstract class CHActor extends BBActor {
 
-    // Every subclass needs to implement this method using Point values representing
-    // a location x,y in coordinate space
+    // Every subclass needs to implement this method to provide an array of Point
+    // values representing locations (x,y)
     // -> Every convex hull object must deliver points to calculate the convex hull
     protected abstract Point[] getPoints();
 
@@ -18,10 +18,10 @@ public abstract class CHActor extends BBActor {
     public CHActor() {
         this.convexHull = calculateConvexHull(getPoints());
 
-        // Debugging
-        for (Point point : convexHull) {
-            // TODO: Indicate which ConvexHull is being calculated
-            System.out.println("CH: " + point.x + ", " + point.y);
+        // Debugging: Print all points of the convex hull
+        for (int i = 0; i < convexHull.length - 1; i++) {
+            System.out.println(
+                    getClass().getSimpleName() + " Convex hull point: " + convexHull[i].x + ", " + convexHull[i].y);
         }
     }
 
@@ -37,23 +37,22 @@ public abstract class CHActor extends BBActor {
 
         int numOfPts = points.length; // Number of points in the array
 
-        // Convex Hull isn't constructable if there are less than 3 points, because in
-        // that case it's only a point or a line -> Return empty array
+        // Convex hull cannot be constructed if there are less than 3 points
+        // -> In that case it's only a point or a line -> Return empty array
         if (numOfPts < 3) {
+            System.out.println("Convex Hull cannot be constructed with less than 3 points");
             return new Point[0];
         }
 
         int minY = 0; // Index of the lowest point
 
         // Find the index of lowest point
+        // -> If two points have the same minimum y-value, take the one with the larger
+        // x-value
         for (int i = 1; i < numOfPts; i++) {
             if (points[i].y < points[minY].y) {
                 minY = i;
-            }
-
-            // If 2 points have the same minimum y-value, take the point with the larger
-            // x-value
-            else if (points[i].y == points[minY].y && points[i].x > points[minY].x) {
+            } else if (points[i].y == points[minY].y && points[i].x > points[minY].x) {
                 minY = i;
             }
         }
@@ -67,7 +66,7 @@ public abstract class CHActor extends BBActor {
             public int compare(Point a, Point b) {
                 int orientation = getOrientation(base, a, b);
 
-                // if points are collinear, sort them by distance from the base
+                // If points are collinear, sort them by distance from the base
                 if (orientation == 0) {
                     int distanceA = getDistance(base, a);
                     int distanceB = getDistance(base, b);
@@ -112,12 +111,12 @@ public abstract class CHActor extends BBActor {
     }
 
     /*
-     * Calculation of the orientation of the middle triplet of points, whether
-     * they're oriented collinear, clockwise or counterclockwise to each other.
-     * Calculate the slopes of lines formed by a,b and b,c using the cross product.
+     * Calculate the orientation of the middle triplet of points, whether
+     * they're oriented collinear, clockwise or counterclockwise
+     * -> Using cross product to calculate the slopes of lines formed by a,b & b,c
      */
     private int getOrientation(Point a, Point b, Point c) {
-        // Calculate both slopes using cross product
+        // Calculate the slopes using cross product
         int slope1 = (b.y - a.y) * (c.x - b.x);
         int slope2 = (c.y - b.y) * (b.x - a.x);
 
@@ -130,13 +129,13 @@ public abstract class CHActor extends BBActor {
         }
     }
 
-    // Calculate the Manhattan / squared distance between 2 points
+    // Calculate the squared distance between 2 points
     private int getDistance(Point a, Point b) {
         return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
     }
 
     // Remove duplicate points by converting the array into a LinkedHashSet, which
-    // can't have duplicates
+    // does not allow duplicates
     private Point[] removeDuplicates(Point[] points) {
 
         LinkedHashSet<Point> uniquePoints = new LinkedHashSet<>();
@@ -150,24 +149,25 @@ public abstract class CHActor extends BBActor {
 
     @Override
     public boolean checkCollision(BBActor otherActor) {
-        if (!(otherActor instanceof CHActor otherCHActor)) {
-            // TODO: Maybe throw Exception
-            System.out.println("Collision detection between different kinds of bounding boxes does not work");
+        if (otherActor instanceof CHActor otherCHActor) {
+            Point[] thisHull = getMovingConvexHull();
+            Point[] otherHull = otherCHActor.getMovingConvexHull();
+
+            // Check for a separating axis between this actor and the other one
+            // -> If a separating axis between both convex hulls can be drawn, then there is
+            // no collision
+            if (hasSeparatingAxis(thisHull, otherHull) || hasSeparatingAxis(otherHull, thisHull)) {
+                return false;
+            }
+
+            // No separating axis can be drawn -> objects must collide
+            return true;
+        } else if (otherActor instanceof AABBActor || otherActor instanceof OBBActor) {
+            return isTouching(otherActor.getClass());
+        } else {
             return false;
         }
 
-        Point[] thisHull = getMovingConvexHull();
-        Point[] otherHull = otherCHActor.getMovingConvexHull();
-
-        // Check for a separating axis between this actor and the other one
-        // If a separating axis between both convex hulls can be drawn, then there is no
-        // collision
-        if (hasSeparatingAxis(thisHull, otherHull) || hasSeparatingAxis(otherHull, thisHull)) {
-            return false;
-        }
-
-        // No separating axis can be drawn -> objects must collide
-        return true;
     }
 
     private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
@@ -176,7 +176,7 @@ public abstract class CHActor extends BBActor {
             Point p1 = hullA[i];
             Point p2 = hullA[(i + 1) % hullA.length];
 
-            // Calculate the orthogonal / normal vector (axis) to the current edge as a
+            // Calculate the orthogonal (normal) vector to the current edge as a
             // potential separating axis
             Point axis = new Point(-(p2.y - p1.y), p2.x - p1.x);
 
@@ -185,7 +185,8 @@ public abstract class CHActor extends BBActor {
             int[] projectionB = projectHullonAxis(hullB, axis);
 
             // Check if there is a gap between the projections on this axis
-            // If a gap is found, this is the separating axis -> no collision on this axis
+            // -> If a gap is found, this is the separating axis -> no collision on this
+            // axis
             if (projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0]) {
                 return true;
             }

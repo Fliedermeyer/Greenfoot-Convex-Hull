@@ -20,6 +20,7 @@ public class CHRocket extends CHActor {
                 System.out.println("Game stopped at " + getX() + " | " + getY());
             }
         }
+
         move();
     }
 

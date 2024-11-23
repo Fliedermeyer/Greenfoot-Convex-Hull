@@ -113,19 +113,16 @@ public abstract class CHActor extends BBActor {
     /*
      * Calculate the orientation of the middle triplet of points, whether
      * they're oriented collinear, clockwise or counterclockwise
-     * -> Using cross product to calculate the slopes of lines formed by a,b & b,c
      */
     private int getOrientation(Point a, Point b, Point c) {
-        // Calculate the slopes using cross product
-        int slope1 = (b.y - a.y) * (c.x - b.x);
-        int slope2 = (c.y - b.y) * (b.x - a.x);
+        int orientation = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 
-        if (slope1 > slope2) {
-            return 1; // Clockwise
-        } else if (slope1 < slope2) {
-            return 2; // Counterclockwise
-        } else {
+        if (orientation == 0){
             return 0; // Collinear
+        } else if (orientation < 0){
+            return 1; // Clockwise
+        } else {
+            return 2; // Counterclockwise
         }
     }
 

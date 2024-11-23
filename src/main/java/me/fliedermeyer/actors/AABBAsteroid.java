@@ -10,12 +10,12 @@ public class AABBAsteroid extends AABBActor {
     private GreenfootImage image;
 
     public AABBAsteroid() { // Constructor for image
-        image = new GreenfootImage("Square.png");
+        image = new GreenfootImage("Asteroid.png");
         setImage(image);
     }
 
     public void act() {
-        setLocation(getX(), getY() + 5); // Moving downwards
+        setLocation(getX(), getY() + 2); // Moving downwards
 
         if (checkCollision(new AABBRocket())) {
             System.out.println("Game stopped at " + getX() + " | " + getY());

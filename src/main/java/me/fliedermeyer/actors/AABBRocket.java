@@ -10,7 +10,7 @@ public class AABBRocket extends AABBActor {
     private GreenfootImage image;
 
     public AABBRocket() { // Constructor for image
-        image = new GreenfootImage("Triangle.png");
+        image = new GreenfootImage("Rocket.png");
         setImage(image);
     }
 

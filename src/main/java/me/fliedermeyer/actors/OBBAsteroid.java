@@ -10,12 +10,12 @@ public class OBBAsteroid extends OBBActor {
     private GreenfootImage image;
 
     public OBBAsteroid() { // Constructor for image
-        image = new GreenfootImage("Square.png");
+        image = new GreenfootImage("Asteroid.png");
         setImage(image);
     }
 
     public void act() {
-        setLocation(getX(), getY() + 5); // Moving downwards
+        setLocation(getX(), getY() + 2); // Moving downwards
         setRotation(45); // Rotated by 45 degrees
 
         if (checkCollision(new AABBRocket())) {

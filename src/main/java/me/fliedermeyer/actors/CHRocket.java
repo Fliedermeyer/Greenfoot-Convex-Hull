@@ -9,7 +9,7 @@ public class CHRocket extends CHActor {
     private GreenfootImage image;
 
     public CHRocket() { // Constructor for image
-        image = new GreenfootImage("Diamond.png");
+        image = new GreenfootImage("Rocket.png");
         setImage(image);
     }
 
@@ -42,10 +42,30 @@ public class CHRocket extends CHActor {
     @Override
     protected Point[] getPoints() {
         return new Point[] {
+                new Point(42, 0),
+                new Point(36, 11),
+                new Point(32, 25),
+                new Point(31, 42),
+                new Point(23, 51),
+                new Point(29, 67),
+                new Point(34, 62),
+                new Point(31, 70),
+                new Point(31, 79),
+                new Point(36, 75),
+                new Point(38, 88),
+                new Point(44, 79),
+                new Point(49, 87),
+                new Point(51, 75),
+                new Point(57, 80),
+                new Point(57, 69),
+                new Point(56, 61),
+                new Point(62, 67),
+                new Point(69, 51),
                 new Point(0, 45),
-                new Point(90, 45),
-                new Point(45, 0),
-                new Point(45, 90)
+                new Point(61, 43),
+                new Point(0, 45),
+                new Point(59, 27),
+                new Point(53, 13),
         };
     }
 }

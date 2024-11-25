@@ -61,9 +61,7 @@ public class CHRocket extends CHActor {
                 new Point(56, 61),
                 new Point(62, 67),
                 new Point(69, 51),
-                new Point(0, 45),
                 new Point(61, 43),
-                new Point(0, 45),
                 new Point(59, 27),
                 new Point(53, 13),
         };

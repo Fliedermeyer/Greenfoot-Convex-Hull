@@ -19,6 +19,10 @@ public class AABBRocket extends AABBActor {
             System.out.println("Game stopped at " + getX() + " | " + getY());
             Greenfoot.stop(); // Game stops when collision is detected
         }
+        if (checkCollision(new OBBAsteroid())) {
+            System.out.println("Game stopped at " + getX() + " | " + getY());
+            Greenfoot.stop(); // Game stops when collision is detected
+        }
         move();
     }
 

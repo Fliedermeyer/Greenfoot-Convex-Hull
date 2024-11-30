@@ -6,6 +6,9 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Stack;
 
+// TODO: Point class to my own private class
+// TODO: Optimize SAT collision
+
 public abstract class CHActor extends BBActor {
 
     // Every subclass needs to implement this method to provide an array of Point
@@ -16,7 +19,7 @@ public abstract class CHActor extends BBActor {
     private Point[] convexHull;
 
     public CHActor() {
-        this.convexHull = calculateConvexHull(getPoints());
+        this.convexHull = calculateConvexHull();
 
         // Debugging: Print all points of the convex hull
         for (int i = 0; i < convexHull.length - 1; i++) {
@@ -30,9 +33,9 @@ public abstract class CHActor extends BBActor {
     }
 
     // Calculate the complete convex hull by processing points triplet by triplet
-    protected Point[] calculateConvexHull(Point[] points) {
+    protected Point[] calculateConvexHull() {
 
-        points = getPoints();
+        Point[] points = getPoints();
         points = removeDuplicates(points);
 
         int numOfPts = points.length; // Number of points in the array
@@ -57,16 +60,15 @@ public abstract class CHActor extends BBActor {
             }
         }
 
-        Point minYPoint = points[minY];
-        final Point base = minYPoint;
+        final Point base = points[minY];
 
-        // Sort points based on their orientation relative to the base point
+        // Sort points based on their orientation / angle relative to the base point
         Arrays.sort(points, new Comparator<Point>() {
             @Override
             public int compare(Point a, Point b) {
                 int orientation = getOrientation(base, a, b);
 
-                // If points are collinear, sort them by distance from the base
+                // If points are collinear, sort them by the nearest distance from the base
                 if (orientation == 0) {
                     int distanceA = getDistance(base, a);
                     int distanceB = getDistance(base, b);
@@ -114,12 +116,12 @@ public abstract class CHActor extends BBActor {
      * Calculate the orientation of the middle triplet of points, whether
      * they're oriented collinear, clockwise or counterclockwise
      */
-    private int getOrientation(Point a, Point b, Point c) {
+    private static int getOrientation(Point a, Point b, Point c) {
         int orientation = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 
-        if (orientation == 0){
+        if (orientation == 0) {
             return 0; // Collinear
-        } else if (orientation < 0){
+        } else if (orientation < 0) {
             return 1; // Clockwise
         } else {
             return 2; // Counterclockwise
@@ -127,13 +129,13 @@ public abstract class CHActor extends BBActor {
     }
 
     // Calculate the squared distance between 2 points
-    private int getDistance(Point a, Point b) {
+    private static int getDistance(Point a, Point b) {
         return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
     }
 
     // Remove duplicate points by converting the array into a LinkedHashSet, which
     // does not allow duplicates
-    private Point[] removeDuplicates(Point[] points) {
+    private static Point[] removeDuplicates(Point[] points) {
 
         LinkedHashSet<Point> uniquePoints = new LinkedHashSet<>();
 
@@ -153,7 +155,7 @@ public abstract class CHActor extends BBActor {
             // Check for a separating axis between this actor and the other one
             // -> If a separating axis between both convex hulls can be drawn, then there is
             // no collision
-            if (hasSeparatingAxis(thisHull, otherHull) || hasSeparatingAxis(otherHull, thisHull)) {
+            if (hasSeparatingAxis(thisHull, otherHull)) {
                 return false;
             }
 
@@ -192,7 +194,7 @@ public abstract class CHActor extends BBActor {
         return false;
     }
 
-    private int[] projectHullonAxis(Point[] hull, Point axis) {
+    private static int[] projectHullonAxis(Point[] hull, Point axis) {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 

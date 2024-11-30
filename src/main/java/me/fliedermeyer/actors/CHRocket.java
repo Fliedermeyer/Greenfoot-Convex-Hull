@@ -2,7 +2,6 @@ package me.fliedermeyer.actors;
 
 import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
-import java.awt.Point;
 
 public class CHRocket extends CHActor {
 

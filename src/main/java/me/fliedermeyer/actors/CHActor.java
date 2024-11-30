@@ -1,12 +1,10 @@
 package me.fliedermeyer.actors;
 
-import java.awt.Point;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Stack;
 
-// TODO: Point class to my own private class
 // TODO: Optimize SAT collision
 
 public abstract class CHActor extends BBActor {
@@ -24,11 +22,12 @@ public abstract class CHActor extends BBActor {
         // Debugging: Print all points of the convex hull
         for (int i = 0; i < convexHull.length - 1; i++) {
             System.out.println(
-                    getClass().getSimpleName() + " Convex hull point: " + convexHull[i].x + ", " + convexHull[i].y);
+                    getClass().getSimpleName() + " Convex hull point: " + convexHull[i].getX() + ", "
+                            + convexHull[i].getY());
         }
     }
 
-    protected Point[] getConvexHull() {
+    private Point[] getConvexHull() {
         return convexHull;
     }
 
@@ -53,9 +52,9 @@ public abstract class CHActor extends BBActor {
         // -> If two points have the same minimum y-value, take the one with the larger
         // x-value
         for (int i = 1; i < numOfPts; i++) {
-            if (points[i].y < points[minY].y) {
+            if (points[i].getY() < points[minY].getY()) {
                 minY = i;
-            } else if (points[i].y == points[minY].y && points[i].x > points[minY].x) {
+            } else if (points[i].getY() == points[minY].getY() && points[i].getX() > points[minY].getX()) {
                 minY = i;
             }
         }
@@ -117,7 +116,7 @@ public abstract class CHActor extends BBActor {
      * they're oriented collinear, clockwise or counterclockwise
      */
     private static int getOrientation(Point a, Point b, Point c) {
-        int orientation = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+        int orientation = (b.getX() - a.getX()) * (c.getY() - a.getY()) - (b.getY() - a.getY()) * (c.getX() - a.getX());
 
         if (orientation == 0) {
             return 0; // Collinear
@@ -130,7 +129,7 @@ public abstract class CHActor extends BBActor {
 
     // Calculate the squared distance between 2 points
     private static int getDistance(Point a, Point b) {
-        return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+        return (a.getX() - b.getX()) * (a.getX() - b.getX()) + (a.getY() - b.getY()) * (a.getY() - b.getY());
     }
 
     // Remove duplicate points by converting the array into a LinkedHashSet, which
@@ -177,7 +176,7 @@ public abstract class CHActor extends BBActor {
 
             // Calculate the orthogonal (normal) vector to the current edge as a
             // potential separating axis
-            Point axis = new Point(-(p2.y - p1.y), p2.x - p1.x);
+            Point axis = new Point(-(p2.getY() - p1.getY()), p2.getX() - p1.getX());
 
             // Project both hulls onto the orthogonal vector (axis)
             int[] projectionA = projectHullonAxis(hullA, axis);
@@ -200,7 +199,7 @@ public abstract class CHActor extends BBActor {
 
         // Project each point of the hull onto the axis and find the min and max values
         for (int i = 0; i < hull.length; i++) {
-            int projection = hull[i].x * axis.x + hull[i].y * axis.y;
+            int projection = hull[i].getX() * axis.getX() + hull[i].getY() * axis.getY();
 
             if (projection < min) {
                 min = projection;
@@ -221,7 +220,7 @@ public abstract class CHActor extends BBActor {
         // Move each point of the original convex hull to the actor's current position
         // in the world
         for (int i = 0; i < originalHull.length; i++) {
-            movingHull[i] = new Point(originalHull[i].x + getX(), originalHull[i].y + getY());
+            movingHull[i] = new Point(originalHull[i].getX() + getX(), originalHull[i].getY() + getY());
         }
 
         return movingHull;

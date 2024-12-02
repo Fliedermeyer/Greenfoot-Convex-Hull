@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Stack;
 
-// TODO: Optimise loop to not calculate MinMax every frame
-
 public abstract class CHActor extends BBActor {
 
     // Every subclass needs to implement this method to provide an array of Point
@@ -16,10 +14,14 @@ public abstract class CHActor extends BBActor {
 
     private Point[] convexHull;
 
+    // Static extreme points of the convex hull
+    private int staticMinX, staticMinY, staticMaxX, staticMaxY;
+
     public CHActor() {
         this.convexHull = calculateConvexHull();
+        calculateBoundingBox();
 
-        // Debugging: Print all points of the convex hull
+        // Debugging: Output all points of the convex hull
         for (int i = 0; i < convexHull.length - 1; i++) {
             System.out.println(
                     getClass().getSimpleName() + " Convex hull point: " + convexHull[i].getPointX() + ", "
@@ -31,26 +33,24 @@ public abstract class CHActor extends BBActor {
         return convexHull;
     }
 
-    // Calculate the complete convex hull by processing points triplet by triplet
+    // Calculate the convex hull using the Graham Scan algorithm
     protected Point[] calculateConvexHull() {
 
-        Point[] points = getPoints();
+        Point[] points = getPoints(); // Get points from the subclass
         points = removeDuplicates(points);
 
         int numOfPts = points.length; // Number of points in the array
 
-        // Convex hull cannot be constructed if there are less than 3 points
-        // -> In that case it's only a point or a line -> Return empty array
+        // Convex hull cannot be constructed with less than 3 points
         if (numOfPts < 3) {
             System.out.println("Convex Hull cannot be constructed with less than 3 points");
             return new Point[0];
         }
 
-        int minY = 0; // Index of the lowest point
-
-        // Find the index of lowest point
+        // Find the index of the lowest point
         // -> If two points have the same minimum y-value, take the one with the larger
         // x-value
+        int minY = 0;
         for (int i = 1; i < numOfPts; i++) {
             if (points[i].getPointY() < points[minY].getPointY()) {
                 minY = i;
@@ -83,6 +83,7 @@ public abstract class CHActor extends BBActor {
         });
 
         Stack<Point> convexHull = new Stack<>();
+
         // Push the first 2 points onto the convexHull stack
         convexHull.push(points[0]);
         convexHull.push(points[1]);
@@ -99,7 +100,7 @@ public abstract class CHActor extends BBActor {
                     convexHull.push(front); // Add the current front point to the hull
                     break;
                 case 1: // Clockwise
-                    i--; // Process the current point again
+                    i--; // Retry with a new middle point
                     break;
                 case 0: // Collinear
                     convexHull.push(front); // Add the current point to the hull
@@ -107,15 +108,14 @@ public abstract class CHActor extends BBActor {
             }
         }
 
-        convexHull.push(points[0]); // Close the hull by adding the starting point again
+        // Close the hull by adding the starting point again
+        convexHull.push(points[0]);
 
         return convexHull.toArray(new Point[0]);
     }
 
-    /*
-     * Calculate the orientation of the middle triplet of points, whether
-     * they're oriented collinear, clockwise or counterclockwise
-     */
+    // Calculate the orientation of the middle triplet of points, whether
+    // they're oriented collinear, clockwise or counterclockwise
     private static int getOrientation(Point a, Point b, Point c) {
         int orientation = (b.getPointX() - a.getPointX()) * (c.getPointY() - a.getPointY())
                 - (b.getPointY() - a.getPointY()) * (c.getPointX() - a.getPointX());
@@ -148,18 +148,30 @@ public abstract class CHActor extends BBActor {
         return uniquePoints.toArray(new Point[0]);
     }
 
+    // Check collision between this actor and another
     @Override
     public boolean checkCollision(BBActor otherActor) {
         if (otherActor instanceof CHActor otherCHActor) {
-            Point[] thisHull = getMovingConvexHull();
-            Point[] otherHull = otherCHActor.getMovingConvexHull();
+            // Adjust the bounding box values around the convex hull to the actors position
+            int thisMinX = staticMinX + getX();
+            int thisMaxX = staticMaxX + getX();
+            int thisMinY = staticMinY + getY();
+            int thisMaxY = staticMaxY + getY();
 
-            calculateMinMax(thisHull, otherHull);
+            int otherMinX = otherCHActor.staticMinX + otherCHActor.getX();
+            int otherMaxX = otherCHActor.staticMaxX + otherCHActor.getX();
+            int otherMinY = otherCHActor.staticMinY + otherCHActor.getY();
+            int otherMaxY = otherCHActor.staticMaxY + otherCHActor.getY();
 
-            if (!hullOverlap()) {
-                System.out.println("Hulls don't overlap because of optimised bounding box");
+            // Check if the bounding boxes around the convex hull actors are overlapping
+            if (!overlapBoundingBox(thisMinX, thisMaxX, thisMinY, thisMaxY,
+                    otherMinX, otherMaxX, otherMinY, otherMaxY)) {
+                System.out.println("Hulls don't overlap because of BBOverlap");
                 return false;
             }
+
+            Point[] thisHull = getMovingConvexHull();
+            Point[] otherHull = otherCHActor.getMovingConvexHull();
 
             // Check for a separating axis between this actor and the other one
             // -> If a separating axis between both convex hulls can be drawn, then there is
@@ -169,16 +181,17 @@ public abstract class CHActor extends BBActor {
                 return false;
             }
 
+            // Bounding box overlaps, no separating axis -> hulls must overlap
             System.out.println("Hulls overlap");
             return true;
 
-            // If both objects are not CHActors -> do not check collision
         } else {
-            return false;
+            return false; // No collision check for non-CHActors
         }
 
     }
 
+    // Check for a separating axis using the Separating Axis Theorem
     private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
         // Check each edge of hullA to draw potential separating axes
         for (int i = 0; i < hullA.length; i++) {
@@ -200,15 +213,16 @@ public abstract class CHActor extends BBActor {
                 return true;
             }
         }
-        // No separating axes at all -> objects must collide
+        // No separating axis -> objects must collide
         return false;
     }
 
+    // Project the convex hull onto a given axis and returns the min and max
+    // projection
     private static int[] projectHullonAxis(Point[] hull, Point axis) {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
-        // Project each point of the hull onto the axis and find the min and max values
         for (int i = 0; i < hull.length; i++) {
             int projection = hull[i].getPointX() * axis.getPointX() + hull[i].getPointY() * axis.getPointY();
 
@@ -220,16 +234,14 @@ public abstract class CHActor extends BBActor {
             }
         }
 
-        // Return the projection range (min -> max) on this axis
         return new int[] { min, max };
     }
 
+    // Return the convex hull adjusted to the actor's current position
     private Point[] getMovingConvexHull() {
         Point[] originalHull = getConvexHull();
         Point[] movingHull = new Point[originalHull.length];
 
-        // Move each point of the original convex hull to the actor's current position
-        // in the world
         for (int i = 0; i < originalHull.length; i++) {
             movingHull[i] = new Point(originalHull[i].getPointX() + getX(), originalHull[i].getPointY() + getY());
         }
@@ -237,44 +249,25 @@ public abstract class CHActor extends BBActor {
         return movingHull;
     }
 
-    private boolean hullOverlap() {
-        return !(minXfromHullA > maxXfromHullB || maxXfromHullA < minXfromHullB ||
-                minYfromHullA > maxYfromHullB || maxYfromHullA < minYfromHullB);
+    // Check if two bounding boxes overlap
+    private boolean overlapBoundingBox(int minX1, int maxX1, int minY1, int maxY1,
+            int minX2, int maxX2, int minY2, int maxY2) {
+        return !(minX1 > maxX2 || maxX1 < minX2 || minY1 > maxY2 || maxY1 < minY2);
     }
 
-    private int minYfromHullA;
-    private int minXfromHullA;
-    private int maxYfromHullA;
-    private int maxXfromHullA;
+    // Calculate the static bounding box based on the convex hulls maximum and
+    // minimum x & y values
+    private void calculateBoundingBox() {
+        staticMinX = Integer.MAX_VALUE;
+        staticMinY = Integer.MAX_VALUE;
+        staticMaxX = Integer.MIN_VALUE;
+        staticMaxY = Integer.MIN_VALUE;
 
-    private int minYfromHullB;
-    private int minXfromHullB;
-    private int maxYfromHullB;
-    private int maxXfromHullB;
-
-    private void calculateMinMax(Point[] hullA, Point[] hullB) {
-        minXfromHullA = Integer.MAX_VALUE;
-        minYfromHullA = Integer.MAX_VALUE;
-        maxXfromHullA = Integer.MIN_VALUE;
-        maxYfromHullA = Integer.MIN_VALUE;
-
-        for (Point point : hullA) {
-            minXfromHullA = Math.min(minXfromHullA, point.getPointX());
-            maxXfromHullA = Math.max(maxXfromHullA, point.getPointX());
-            minYfromHullA = Math.min(minYfromHullA, point.getPointY());
-            maxYfromHullA = Math.max(maxYfromHullA, point.getPointY());
-        }
-
-        minXfromHullB = Integer.MAX_VALUE;
-        minYfromHullB = Integer.MAX_VALUE;
-        maxXfromHullB = Integer.MIN_VALUE;
-        maxYfromHullB = Integer.MIN_VALUE;
-
-        for (Point point : hullB) {
-            minXfromHullB = Math.min(minXfromHullB, point.getPointX());
-            maxXfromHullB = Math.max(maxXfromHullB, point.getPointX());
-            minYfromHullB = Math.min(minYfromHullB, point.getPointY());
-            maxYfromHullB = Math.max(maxYfromHullB, point.getPointY());
+        for (Point point : convexHull) {
+            staticMinX = Math.min(staticMinX, point.getPointX());
+            staticMaxX = Math.max(staticMaxX, point.getPointX());
+            staticMinY = Math.min(staticMinY, point.getPointY());
+            staticMaxY = Math.max(staticMaxY, point.getPointY());
         }
     }
 }

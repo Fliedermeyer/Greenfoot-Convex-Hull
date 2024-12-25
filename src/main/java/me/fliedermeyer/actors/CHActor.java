@@ -195,26 +195,49 @@ public abstract class CHActor extends BBActor {
     private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
         // Check each edge of hullA to draw potential separating axes
         for (int i = 0; i < hullA.length; i++) {
-            Point p1 = hullA[i];
-            Point p2 = hullA[(i + 1) % hullA.length];
-
-            // Calculate the orthogonal (normal) vector to the current edge as a
+            // Calculate the orthogonal (normal) vector to the current edge of hullA as a
             // potential separating axis
-            Point axis = new Point(-(p2.getPointY() - p1.getPointY()), p2.getPointX() - p1.getPointX());
+            Point axis = getSeparatingAxis(hullA, i);
 
-            // Project both hulls onto the orthogonal vector (axis)
-            int[] projectionA = projectHullonAxis(hullA, axis);
-            int[] projectionB = projectHullonAxis(hullB, axis);
-
-            // Check if there is a gap between the projections on this axis
-            // -> If a gap is found, this is the separating axis -> no collision on this
-            // axis
-            if (projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0]) {
-                return true;
+            // Check projections for both hulls
+            if (hasGapBetweenProjections(hullA, hullB, axis)) {
+                return true; // Found one separating axis -> early exit the algoritm
             }
         }
+
+        // Check each edge of hullB to draw potential separating axes
+        for (int i = 0; i < hullB.length; i++) {
+            // Calculate the orthogonal (normal) vector to the current edge of hullB as a
+            // potential separating axis
+            Point axis = getSeparatingAxis(hullB, i);
+
+            // Check projections for both hulls
+            if (hasGapBetweenProjections(hullA, hullB, axis)) {
+                return true; // Found one separating axis -> early exit the algoritm
+            }
+        }
+
         // No separating axis -> objects must collide
         return false;
+    }
+
+    // Calculate the separating axis (normal vector) for a given edge
+    private Point getSeparatingAxis(Point[] hull, int i) {
+        Point p1 = hull[i];
+        Point p2 = hull[(i + 1) % hull.length];
+        return new Point(-(p2.getPointY() - p1.getPointY()), p2.getPointX() - p1.getPointX());
+    }
+
+    // Check if there is a gap between the projections of the two hulls on a given
+    // axis
+    private boolean hasGapBetweenProjections(Point[] hullA, Point[] hullB, Point axis) {
+        int[] projectionA = projectHullonAxis(hullA, axis);
+        int[] projectionB = projectHullonAxis(hullB, axis);
+
+        // Check if there is a gap between the projections on this axis
+        // -> If a gap is found, this is the separating axis -> no collision on this
+        // axis
+        return projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0];
     }
 
     // Project the convex hull onto a given axis and returns the min and max

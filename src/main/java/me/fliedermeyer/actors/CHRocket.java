@@ -23,7 +23,7 @@ public class CHRocket extends CHActor {
         move();
     }
 
-    public void move() { // Moving the rocket with the keys W,A,S,D
+    private void move() { // Moving the rocket with the keys W,A,S,D
         if (Greenfoot.isKeyDown("W")) {
             setLocation(getX(), getY() - 5);
         }

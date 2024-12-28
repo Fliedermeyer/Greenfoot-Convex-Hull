@@ -172,7 +172,6 @@ public abstract class CHActor extends BBActor {
             // Check if the bounding boxes around the convex hull actors are overlapping
             if (!overlapBoundingBox(thisMinX, thisMaxX, thisMinY, thisMaxY,
                     otherMinX, otherMaxX, otherMinY, otherMaxY)) {
-                System.out.println("Hulls don't overlap because of BBOverlap");
                 return false;
             }
 

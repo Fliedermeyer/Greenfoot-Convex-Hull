@@ -14,12 +14,9 @@ public abstract class CHActor extends BBActor {
 
     private Point[] convexHull;
 
-    // Static extreme points of the convex hull
-    private int staticMinX, staticMinY, staticMaxX, staticMaxY;
 
     public CHActor() {
         this.convexHull = calculateConvexHull();
-        calculateBoundingBox();
 
         // Debugging: Output all points of the convex hull
         for (int i = 0; i < convexHull.length - 1; i++) {
@@ -152,23 +149,6 @@ public abstract class CHActor extends BBActor {
     @Override
     public boolean checkCollision(BBActor otherActor) {
         if (otherActor instanceof CHActor otherCHActor) {
-            // Adjust the bounding box values around the convex hull to the actors position
-            int thisMinX = staticMinX + getX();
-            int thisMaxX = staticMaxX + getX();
-            int thisMinY = staticMinY + getY();
-            int thisMaxY = staticMaxY + getY();
-
-            int otherMinX = otherCHActor.staticMinX + otherCHActor.getX();
-            int otherMaxX = otherCHActor.staticMaxX + otherCHActor.getX();
-            int otherMinY = otherCHActor.staticMinY + otherCHActor.getY();
-            int otherMaxY = otherCHActor.staticMaxY + otherCHActor.getY();
-
-            // Check if the bounding boxes around the convex hull actors are overlapping
-            if (!overlapBoundingBox(thisMinX, thisMaxX, thisMinY, thisMaxY,
-                    otherMinX, otherMaxX, otherMinY, otherMaxY)) {
-                System.out.println("Hulls don't overlap because of BBOverlap");
-                return false;
-            }
 
             Point[] thisHull = getMovingConvexHull();
             Point[] otherHull = otherCHActor.getMovingConvexHull();
@@ -272,25 +252,4 @@ public abstract class CHActor extends BBActor {
         return movingHull;
     }
 
-    // Check if two bounding boxes overlap
-    private boolean overlapBoundingBox(int minX1, int maxX1, int minY1, int maxY1,
-            int minX2, int maxX2, int minY2, int maxY2) {
-        return !(minX1 > maxX2 || maxX1 < minX2 || minY1 > maxY2 || maxY1 < minY2);
-    }
-
-    // Calculate the static bounding box based on the convex hulls maximum and
-    // minimum x & y values
-    private void calculateBoundingBox() {
-        staticMinX = Integer.MAX_VALUE;
-        staticMinY = Integer.MAX_VALUE;
-        staticMaxX = Integer.MIN_VALUE;
-        staticMaxY = Integer.MIN_VALUE;
-
-        for (Point point : convexHull) {
-            staticMinX = Math.min(staticMinX, point.getPointX());
-            staticMaxX = Math.max(staticMaxX, point.getPointX());
-            staticMinY = Math.min(staticMinY, point.getPointY());
-            staticMaxY = Math.max(staticMaxY, point.getPointY());
-        }
-    }
 }

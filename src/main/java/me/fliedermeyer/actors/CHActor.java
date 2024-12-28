@@ -172,7 +172,7 @@ public abstract class CHActor extends BBActor {
             // Check if the bounding boxes around the convex hull actors are overlapping
             if (!overlapBoundingBox(thisMinX, thisMaxX, thisMinY, thisMaxY,
                     otherMinX, otherMaxX, otherMinY, otherMaxY)) {
-                return false;
+                result = false;
             }
 
             Point[] thisHull = getMovingConvexHull();

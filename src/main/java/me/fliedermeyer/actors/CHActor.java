@@ -148,14 +148,12 @@ public abstract class CHActor extends BBActor {
         return uniquePoints.toArray(new Point[0]);
     }
 
-    private long totalCollisionCheckTime = 0; 
-    private int collisionCheckCount = 0; 
+
 
     // Check collision between this actor and another
     @Override
     public boolean checkCollision(BBActor otherActor) {
-        long startTime = System.nanoTime(); 
-        boolean result = false;
+
         
         if (otherActor instanceof CHActor otherCHActor) {
             // Adjust the bounding box values around the convex hull to the actors position
@@ -172,7 +170,7 @@ public abstract class CHActor extends BBActor {
             // Check if the bounding boxes around the convex hull actors are overlapping
             if (!overlapBoundingBox(thisMinX, thisMaxX, thisMinY, thisMaxY,
                     otherMinX, otherMaxX, otherMinY, otherMaxY)) {
-                result = false;
+                return false;
             }
 
             Point[] thisHull = getMovingConvexHull();
@@ -182,23 +180,13 @@ public abstract class CHActor extends BBActor {
             // -> If a separating axis between both convex hulls can be drawn, then there is
             // no collision
             if (hasSeparatingAxis(thisHull, otherHull)) {
-                result = false;
+                return false;
             } else {
-                result = true;
+                return true;
             }
+        } else {
+            return false;
         }
-        long endTime = System.nanoTime(); 
-            long duration = endTime - startTime; 
-            totalCollisionCheckTime += duration; 
-            collisionCheckCount++; 
-            if (collisionCheckCount == 100) {
-                long averageTime = totalCollisionCheckTime / 100; 
-                System.out.println("Average collision check duration after 100 runs (ns): " + averageTime);
-                totalCollisionCheckTime = 0;
-                collisionCheckCount = 0;
-            }
-            System.out.println("Collision check duration (ns): " + duration); 
-            return result;
     }
     
 

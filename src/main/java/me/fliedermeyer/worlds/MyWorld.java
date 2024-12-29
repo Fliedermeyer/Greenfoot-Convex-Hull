@@ -29,6 +29,7 @@ public class MyWorld extends World {
             rocket.checkCollision(asteroid);
             long endTime = System.nanoTime();
             totalDuration += (endTime - startTime);
+			System.out.println("1 duration: " + (endTime - startTime) + " nanoseconds");
         }
 
         double averageDuration = totalDuration / 100.0;

@@ -15,7 +15,7 @@ public class MyWorld extends World {
         CHActor rocket = new CHRocket();
         CHActor asteroid = new CHAsteroid();
 
-        addObject(rocket, getWidth() / 2, getHeight() - 45);
+        addObject(rocket, getWidth() / 2, getHeight());
         addObject(asteroid, getWidth() / 2, 0);
 
         testCollision(rocket, asteroid);
@@ -24,15 +24,20 @@ public class MyWorld extends World {
     private void testCollision(CHActor rocket, CHActor asteroid) {
         long totalDuration = 0;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
+            // Change the location of the actors every iteration
+            asteroid.setLocation(getWidth() / 2 - 200, i);
+            rocket.setLocation(getWidth() / 2 + 200, -i);
+
+            // Measure the time it takes to check for 1 collision
             long startTime = System.nanoTime();
             rocket.checkCollision(asteroid);
             long endTime = System.nanoTime();
-            totalDuration += (endTime - startTime);
-			System.out.println("1 duration: " + (endTime - startTime) + " nanoseconds");
+            totalDuration = totalDuration + (endTime - startTime);
+			System.out.println("1 collision check: " + (endTime - startTime) + " nanoseconds");
         }
 
-        double averageDuration = totalDuration / 100.0;
-        System.out.println("Average duration of collision check: " + averageDuration + " nanoseconds");
+        long averageDuration = totalDuration / 1000;
+        System.out.println("Average duration of 1 collision check: " + averageDuration + " nanoseconds");
     }
 }

@@ -7,7 +7,7 @@ public class AABBActor extends BBActor {
     @Override
     public boolean checkCollision(BBActor otherActor) {
 
-        if (otherActor instanceof AABBActor || otherActor instanceof OBBActor) {
+        if (otherActor instanceof AABBActor) {
             return isTouching(otherActor.getClass()); // Collision detection using Greenfoots isTouching() method
         } else {
             return false;

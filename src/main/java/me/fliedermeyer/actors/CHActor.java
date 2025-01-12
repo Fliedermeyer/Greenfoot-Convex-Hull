@@ -82,6 +82,13 @@ public abstract class CHActor extends BBActor {
             }
         });
 
+        // Debbuging: Output all sorted points
+        for (int i = 0; i < points.length - 1; i++) {
+            System.out.println(
+                    getClass().getSimpleName() + " Sorted point: " + points[i].getPointX() + ", "
+                            + points[i].getPointY());
+        }
+
         Stack<Point> convexHull = new Stack<>();
 
         // Push the first 2 points onto the convexHull stack

@@ -14,7 +14,7 @@ public abstract class CHActor extends BBActor {
 
     private Point[] convexHull;
 
-    // Static extreme points of the convex hull
+    // Static extreme points of the convex hull -> not changing
     private int staticMinX, staticMinY, staticMaxX, staticMaxY;
 
     public CHActor() {
@@ -41,7 +41,7 @@ public abstract class CHActor extends BBActor {
 
         int numOfPts = points.length; // Number of points in the array
 
-        // Convex hull cannot be constructed with less than 3 points
+        // Convex hull cant be constructed with less than 3 points
         if (numOfPts < 3) {
             System.out.println("Convex Hull cannot be constructed with less than 3 points");
             return new Point[0];
@@ -62,7 +62,7 @@ public abstract class CHActor extends BBActor {
 
         final Point base = points[minY];
 
-        // Sort points based on their orientation / angle relative to the base point
+        // Sort points based on their polarangle relative to the base point
         Arrays.sort(points, new Comparator<Point>() {
             @Override
             public int compare(Point a, Point b) {
@@ -195,8 +195,7 @@ public abstract class CHActor extends BBActor {
     private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
         // Check each edge of hullA to draw potential separating axes
         for (int i = 0; i < hullA.length; i++) {
-            // Calculate the orthogonal (normal) vector to the current edge of hullA as a
-            // potential separating axis
+            // Calculate the orthogonal (normal) vector to the current edge of hullA
             Point axis = getSeparatingAxis(hullA, i);
 
             // Check projections for both hulls
@@ -207,8 +206,7 @@ public abstract class CHActor extends BBActor {
 
         // Check each edge of hullB to draw potential separating axes
         for (int i = 0; i < hullB.length; i++) {
-            // Calculate the orthogonal (normal) vector to the current edge of hullB as a
-            // potential separating axis
+            // Calculate the orthogonal (normal) vector to the current edge of hullB
             Point axis = getSeparatingAxis(hullB, i);
 
             // Check projections for both hulls
@@ -221,7 +219,7 @@ public abstract class CHActor extends BBActor {
         return false;
     }
 
-    // Calculate the separating axis (normal vector) for a given edge
+    // Calculate the separating axis for a given edge
     private Point getSeparatingAxis(Point[] hull, int i) {
         Point p1 = hull[i];
         Point p2 = hull[(i + 1) % hull.length];
@@ -260,7 +258,7 @@ public abstract class CHActor extends BBActor {
         return new int[] { min, max };
     }
 
-    // Return the convex hull adjusted to the actor's current position
+    // Return the convex hull adjusted to the actors current position
     private Point[] getMovingConvexHull() {
         Point[] originalHull = getConvexHull();
         Point[] movingHull = new Point[originalHull.length];
@@ -273,13 +271,14 @@ public abstract class CHActor extends BBActor {
     }
 
     // Check if two bounding boxes overlap
+    // Inverse > and < because of the coordinate system starting at the top left
     private boolean overlapBoundingBox(int minX1, int maxX1, int minY1, int maxY1,
             int minX2, int maxX2, int minY2, int maxY2) {
         return !(minX1 > maxX2 || maxX1 < minX2 || minY1 > maxY2 || maxY1 < minY2);
     }
 
-    // Calculate the static bounding box based on the convex hulls maximum and
-    // minimum x & y values
+    // Calculate the static bounding box based on the convex hulls max and min x & y
+    // values -> Not changing
     private void calculateBoundingBox() {
         staticMinX = Integer.MAX_VALUE;
         staticMinY = Integer.MAX_VALUE;

@@ -15,7 +15,7 @@ public class CHRocket extends CHActor {
     public void act() {
         for (CHAsteroid asteroid : getWorld().getObjects(CHAsteroid.class)) {
             if (checkCollision(asteroid)) {
-                Greenfoot.stop();
+                Greenfoot.stop(); // Game stops when collision is detected
                 System.out.println("Game stopped at " + getX() + " | " + getY());
             }
         }
@@ -38,6 +38,9 @@ public class CHRocket extends CHActor {
         }
     }
 
+    // Implementation of abstract method getPoints() to define all points of the
+    // objects
+    // -> Points of the edges of the rocket taken from the image
     @Override
     protected Point[] getPoints() {
         return new Point[] {

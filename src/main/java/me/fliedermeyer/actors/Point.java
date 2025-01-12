@@ -21,11 +21,11 @@ public class Point {
     /*
      * Setters currently not in use
      * 
-     * public void setX(int x) {
+     * public void setPointX(int x) {
      * this.x = x;
      * }
      * 
-     * public void setY(int y) {
+     * public void setPointY(int y) {
      * this.y = y;
      * }
      */

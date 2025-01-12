@@ -33,7 +33,7 @@ public abstract class CHActor extends BBActor {
         return convexHull;
     }
 
-    // Calculate the convex hull using the Graham Scan algorithm
+    // Calculate the convex hull using the Graham algorithm
     protected Point[] calculateConvexHull() {
 
         Point[] points = getPoints(); // Get points from the subclass
@@ -47,7 +47,7 @@ public abstract class CHActor extends BBActor {
             return new Point[0];
         }
 
-        // Find the index of the lowest point -> Starting point
+        // Find the index of the lowest point -> starting point
         // -> If two points have the same minimum y-value, take the one with the larger
         // x-value
         // !!! Invert the y-coordinates because the coordinate system starts at the top
@@ -64,7 +64,8 @@ public abstract class CHActor extends BBActor {
 
         final Point base = points[minY];
 
-        // Sort points based on their polarangle relative to the base point
+        // Sort points based on their polarangle relative to the base point / starting
+        // point
         Arrays.sort(points, new Comparator<Point>() {
             @Override
             public int compare(Point a, Point b) {
@@ -125,6 +126,8 @@ public abstract class CHActor extends BBActor {
 
     // Calculate the orientation of the middle triplet of points, whether
     // they're oriented collinear, clockwise or counterclockwise
+    // !!! Invert the y-coordinates because the coordinate system starts at the top
+    // left
     private static int getOrientation(Point a, Point b, Point c) {
         int orientation = (b.getPointX() - a.getPointX()) * (-c.getPointY() - -a.getPointY())
                 - (-b.getPointY() - -a.getPointY()) * (c.getPointX() - a.getPointX());
@@ -138,14 +141,15 @@ public abstract class CHActor extends BBActor {
         }
     }
 
-    // Calculate the squared distance between 2 points
+    // Calculate the squared distance between 2 points (root calculation would be
+    // less efficient)
     private static int getDistance(Point a, Point b) {
         return (a.getPointX() - b.getPointX()) * (a.getPointX() - b.getPointX())
                 + (a.getPointY() - b.getPointY()) * (a.getPointY() - b.getPointY());
     }
 
     // Remove duplicate points by converting the array into a LinkedHashSet, which
-    // does not allow duplicates
+    // does not allow duplicates but keeps the order
     private static Point[] removeDuplicates(Point[] points) {
 
         LinkedHashSet<Point> uniquePoints = new LinkedHashSet<>();
@@ -236,18 +240,18 @@ public abstract class CHActor extends BBActor {
     }
 
     // Check if there is a gap between the projections of the two hulls on a given
-    // axis
+    // normal vectors
     private boolean hasGapBetweenProjections(Point[] hullA, Point[] hullB, Point axis) {
         int[] projectionA = projectHullonAxis(hullA, axis);
         int[] projectionB = projectHullonAxis(hullB, axis);
 
-        // Check if there is a gap between the projections on this axis
+        // Check if there is a gap between the projections on this vector
         // -> If a gap is found, this is the separating axis -> no collision on this
-        // axis
+        // normal vector
         return projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0];
     }
 
-    // Project the convex hull onto a given axis and returns the min and max
+    // Project the convex hull onto a given vector and returns the min and max
     // projection
     private static int[] projectHullonAxis(Point[] hull, Point axis) {
         int min = Integer.MAX_VALUE;
@@ -287,7 +291,7 @@ public abstract class CHActor extends BBActor {
     }
 
     // Calculate the static bounding box based on the convex hulls max and min x & y
-    // values -> Not changing
+    // values -> not changing
     private void calculateBoundingBox() {
         staticMinX = Integer.MAX_VALUE;
         staticMinY = Integer.MAX_VALUE;

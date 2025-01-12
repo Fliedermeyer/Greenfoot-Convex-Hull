@@ -7,8 +7,8 @@ public class CHAsteroid extends CHActor {
 
     private GreenfootImage image;
 
-    public CHAsteroid() { // Constructor
-        image = new GreenfootImage("Asteroid.png"); // Set the image of the object
+    public CHAsteroid() { // Constructor for image
+        image = new GreenfootImage("Asteroid.png"); 
         setImage(image);
     }
 
@@ -17,7 +17,7 @@ public class CHAsteroid extends CHActor {
 
         for (AABBRocket rocket : getWorld().getObjects(AABBRocket.class)) {
             if (checkCollision(rocket)) {
-                Greenfoot.stop();
+                Greenfoot.stop(); // Game stops when collision is detected
                 System.out.println("Game stopped at " + getX() + " | " + getY());
             }
         }
@@ -25,6 +25,7 @@ public class CHAsteroid extends CHActor {
 
     // Implementation of abstract method getPoints() to define all points of the
     // objects
+    // -> Points of the edges of the asteroid taken from the image
     @Override
     protected Point[] getPoints() {
         return new Point[] {

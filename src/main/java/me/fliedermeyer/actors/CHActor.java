@@ -22,7 +22,7 @@ public abstract class CHActor extends BBActor {
         calculateBoundingBox();
 
         // Debugging: Output all points of the convex hull
-        for (int i = 0; i < convexHull.length - 1; i++) {
+        for (int i = 0; i < convexHull.length; i++) {
             System.out.println(
                     getClass().getSimpleName() + " Convex hull point: " + convexHull[i].getPointX() + ", "
                             + convexHull[i].getPointY());
@@ -47,12 +47,14 @@ public abstract class CHActor extends BBActor {
             return new Point[0];
         }
 
-        // Find the index of the lowest point
+        // Find the index of the lowest point -> Starting point
         // -> If two points have the same minimum y-value, take the one with the larger
         // x-value
+        // !!! Invert the y-coordinates because the coordinate system starts at the top
+        // left
         int minY = 0;
         for (int i = 1; i < numOfPts; i++) {
-            if (points[i].getPointY() < points[minY].getPointY()) {
+            if (points[i].getPointY() > points[minY].getPointY()) {
                 minY = i;
             } else if (points[i].getPointY() == points[minY].getPointY()
                     && points[i].getPointX() > points[minY].getPointX()) {
@@ -83,7 +85,7 @@ public abstract class CHActor extends BBActor {
         });
 
         // Debbuging: Output all sorted points
-        for (int i = 0; i < points.length - 1; i++) {
+        for (int i = 0; i < points.length; i++) {
             System.out.println(
                     getClass().getSimpleName() + " Sorted point: " + points[i].getPointX() + ", "
                             + points[i].getPointY());
@@ -124,8 +126,8 @@ public abstract class CHActor extends BBActor {
     // Calculate the orientation of the middle triplet of points, whether
     // they're oriented collinear, clockwise or counterclockwise
     private static int getOrientation(Point a, Point b, Point c) {
-        int orientation = (b.getPointX() - a.getPointX()) * (c.getPointY() - a.getPointY())
-                - (b.getPointY() - a.getPointY()) * (c.getPointX() - a.getPointX());
+        int orientation = (b.getPointX() - a.getPointX()) * (-c.getPointY() - -a.getPointY())
+                - (-b.getPointY() - -a.getPointY()) * (c.getPointX() - a.getPointX());
 
         if (orientation == 0) {
             return 0; // Collinear

@@ -209,7 +209,7 @@ public abstract class CHActor extends BBActor {
         // Check each edge of hullA to draw potential separating axes
         for (int i = 0; i < hullA.length; i++) {
             // Calculate the orthogonal (normal) vector to the current edge of hullA
-            Point axis = getSeparatingAxis(hullA, i);
+            Point axis = getNormalVector(hullA, i);
 
             // Check projections for both hulls
             if (hasGapBetweenProjections(hullA, hullB, axis)) {
@@ -220,7 +220,7 @@ public abstract class CHActor extends BBActor {
         // Check each edge of hullB to draw potential separating axes
         for (int i = 0; i < hullB.length; i++) {
             // Calculate the orthogonal (normal) vector to the current edge of hullB
-            Point axis = getSeparatingAxis(hullB, i);
+            Point axis = getNormalVector(hullB, i);
 
             // Check projections for both hulls
             if (hasGapBetweenProjections(hullA, hullB, axis)) {
@@ -232,15 +232,15 @@ public abstract class CHActor extends BBActor {
         return false;
     }
 
-    // Calculate the separating axis for a given edge
-    private Point getSeparatingAxis(Point[] hull, int i) {
+    // Calculate the normal vector for a given edge
+    private Point getNormalVector(Point[] hull, int i) {
         Point p1 = hull[i];
         Point p2 = hull[(i + 1) % hull.length];
         return new Point(-(p2.getPointY() - p1.getPointY()), p2.getPointX() - p1.getPointX());
     }
 
     // Check if there is a gap between the projections of the two hulls on a given
-    // normal vectors
+    // normal vector
     private boolean hasGapBetweenProjections(Point[] hullA, Point[] hullB, Point axis) {
         int[] projectionA = projectHullonAxis(hullA, axis);
         int[] projectionB = projectHullonAxis(hullB, axis);
@@ -251,7 +251,7 @@ public abstract class CHActor extends BBActor {
         return projectionA[1] < projectionB[0] || projectionB[1] < projectionA[0];
     }
 
-    // Project the convex hull onto a given vector and returns the min and max
+    // Project the convex hull onto a given vector and return the min and max
     // projection
     private static int[] projectHullonAxis(Point[] hull, Point axis) {
         int min = Integer.MAX_VALUE;

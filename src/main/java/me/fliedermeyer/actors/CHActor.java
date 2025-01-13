@@ -14,7 +14,6 @@ public abstract class CHActor extends BBActor {
 
     private Point[] convexHull;
 
-
     public CHActor() {
         this.convexHull = calculateConvexHull();
 
@@ -49,7 +48,7 @@ public abstract class CHActor extends BBActor {
         // x-value
         int minY = 0;
         for (int i = 1; i < numOfPts; i++) {
-            if (points[i].getPointY() < points[minY].getPointY()) {
+            if (points[i].getPointY() > points[minY].getPointY()) {
                 minY = i;
             } else if (points[i].getPointY() == points[minY].getPointY()
                     && points[i].getPointX() > points[minY].getPointX()) {
@@ -78,6 +77,13 @@ public abstract class CHActor extends BBActor {
                 }
             }
         });
+
+        // Debbuging: Output all sorted points
+        for (int i = 0; i < points.length; i++) {
+            System.out.println(
+                    getClass().getSimpleName() + " Sorted point: " + points[i].getPointX() + ", "
+                            + points[i].getPointY());
+        }
 
         Stack<Point> convexHull = new Stack<>();
 
@@ -114,8 +120,8 @@ public abstract class CHActor extends BBActor {
     // Calculate the orientation of the middle triplet of points, whether
     // they're oriented collinear, clockwise or counterclockwise
     private static int getOrientation(Point a, Point b, Point c) {
-        int orientation = (b.getPointX() - a.getPointX()) * (c.getPointY() - a.getPointY())
-                - (b.getPointY() - a.getPointY()) * (c.getPointX() - a.getPointX());
+        int orientation = (b.getPointX() - a.getPointX()) * (-c.getPointY() - -a.getPointY())
+                - (-b.getPointY() - -a.getPointY()) * (c.getPointX() - a.getPointX());
 
         if (orientation == 0) {
             return 0; // Collinear
@@ -145,13 +151,10 @@ public abstract class CHActor extends BBActor {
         return uniquePoints.toArray(new Point[0]);
     }
 
-    
-
     // Check collision between this actor and another
     @Override
     public boolean checkCollision(BBActor otherActor) {
-        
-        
+
         if (otherActor instanceof CHActor otherCHActor) {
 
             Point[] thisHull = getMovingConvexHull();
@@ -168,16 +171,15 @@ public abstract class CHActor extends BBActor {
         } else {
             return false;
         }
-        
+
     }
-    
 
     // Check for a separating axis using the Separating Axis Theorem
     private boolean hasSeparatingAxis(Point[] hullA, Point[] hullB) {
         // Check each edge of hullA to draw potential separating axes
         for (int i = 0; i < hullA.length; i++) {
             // Calculate the orthogonal (normal) vector to the current edge of hullA
-            Point axis = getSeparatingAxis(hullA, i);
+            Point axis = getNormalVector(hullA, i);
 
             // Check projections for both hulls
             if (hasGapBetweenProjections(hullA, hullB, axis)) {
@@ -188,7 +190,7 @@ public abstract class CHActor extends BBActor {
         // Check each edge of hullB to draw potential separating axes
         for (int i = 0; i < hullB.length; i++) {
             // Calculate the orthogonal (normal) vector to the current edge of hullB
-            Point axis = getSeparatingAxis(hullB, i);
+            Point axis = getNormalVector(hullB, i);
 
             // Check projections for both hulls
             if (hasGapBetweenProjections(hullA, hullB, axis)) {
@@ -201,7 +203,7 @@ public abstract class CHActor extends BBActor {
     }
 
     // Calculate the separating axis for a given edge
-    private Point getSeparatingAxis(Point[] hull, int i) {
+    private Point getNormalVector(Point[] hull, int i) {
         Point p1 = hull[i];
         Point p2 = hull[(i + 1) % hull.length];
         return new Point(-(p2.getPointY() - p1.getPointY()), p2.getPointX() - p1.getPointX());

@@ -83,3 +83,6 @@ Additionally, all convex hull points are printed to the terminal when initializi
 > - Rotating convex hull actors are not supported. 
 > - All points must be defined manually in each object class.
 > - Collisions between AABB and convex hulls objects are not supported.
+> - 
+
+> This project was developed as part of a school assignment and was solely coded by me, accompanied by a corresponding research paper for school.

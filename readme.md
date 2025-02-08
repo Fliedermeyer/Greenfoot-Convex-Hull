@@ -1,54 +1,19 @@
-# Greenfoot Maven Starter
+# Greenfoot convex hull
+This is a starter project to improve the collision detection in [Greenfoot](https://www.greenfoot.org/overview). Greenfoot is an IDE designed for beginners to learn object-oriented programming in Java by creating simple games and simulations. By standard, Greenfoot uses [Axis Aligned Bounding Boxes and Oriented Bounding Boxes](https://en.wikipedia.org/wiki/Minimum_bounding_box) to detect collisions. This leads to unprecise collision detections. 
 
-This is a simple starter project for using [Greenfoot](https://greenfoot.org/home) outside of its dedicated IDE. Since more experience developers might want to use a more powerful IDE. This project is tailored to run in VSCode but should be usable in every Environment where Maven is supported.
+This Greenfoot template enhances collision detection by integrating the [Graham Scan algorithm](https://en.wikipedia.org/wiki/Graham_scan) to construct [convex hulls](https://en.wikipedia.org/wiki/Convex_hull) for more precise collision detection using the [Separating Axis Theorem](https://programmerart.weebly.com/separating-axis-theorem.html).
 
-## Installation
+To improve performance, the more demanding Separating Axis Theorem is only used when neccessary, therefore when the Axis Aligned Bounding Box are colliding. In all other cases, the less demanding Bounding Box collision is being executed. Bounding Boxes are calculated more precisely by using the convex hulls to determine the minimum area. 
 
-To use this project you need to have [Maven](https://maven.apache.org/) installed. You can install it via your package manager or download it from the official website.
+## Output
+Which collision detection is currently being used is printed to the terminal. 
+- When a collision is being detected -> *Hulls overlap*
+- When  objects don't collide because of the traditional Axis Aligned Bounding Box collision detection -> *Hulls don't overlap because of BBOverlap*
+- When objects don't collide while the more precise Separating Axis Theorem is needed -> *Hulls don't overlap because of SAT*
 
-If you have any problems with the installation, please refer to the official [Maven installation guide](https://maven.apache.org/install.html).
+All points of the convex hull are printed to the terminal when inniating the programming.
 
-After you have installed Maven do the following:
+It is impossible to create a convex object with less than 3 points.
+- If the provided Point[] array has less than 3 points -> *Convex Hull cannot be constructed with less than 3 points*
 
-1. Clone this repository
-
-   ```bash
-   git clone https://github.com/LeoTuet/greenfoot-maven-starter
-   ```
-
-2. Open the project in your favorite IDE
-
-3. Install the dependencies
-
-   ```bash
-   mvn clean install
-   ```
-
-## Usage
-
-:warning: **Always close the application via the close button of the Greenfoot window**: Otherwise the application will keep running in the background. If you are debugging you wont be able start the application because the debugging port will still be in use. To fix this you will need to kill the process manually. This is how you do it on [Windows](https://stackoverflow.com/a/39633428/19043394).
-
-### Running the project
-
-To run the project use the following command:
-
-```bash
-mvn clean javafx:run
-```
-
-### To Debug the project (VSCode)
-
-To debug the project use the following command:
-
-```bash
-mvn clean javafx:run@debug
-#Note: The Greenfoot Window will not open until you attach the debugger
-```
-
-As soon as the project is Running go to the Debug tab in the `Activity Bar` and execute the `Attach Debugger`. The Greenfoot Window should now open and you can start debugging.
-
-![Location of Debugger and Script](./assets/debug-tutorial.png)
-
-## Update Greenfoot Version
-
-To update the Greenfoot version you just need to swap out the `greenfoot.jar` and `bluej.jar` in the `lib` folder. After that you should update the `pom.xml` to the new version.
+⚠️ **This implementation does currently not support rotating convex hull actors** ⚠️
